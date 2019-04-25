@@ -168,8 +168,11 @@
 <p>Linux CentOS 6.5</p>
 </blockquote>
 <p>过程中参考过的一些他人的文章<a href="https://zhuanlan.zhihu.com/p/59279569?utm_source=qq&amp;utm_medium=social&amp;utm_oi=822385365787766784" target="_blank" rel="noopener">一次 Java 内存泄漏的排查</a></p>
-<h2 id="一-场景1-发生线上问题后-该怎么做"><a href="#一-场景1-发生线上问题后-该怎么做" class="headerlink" title="一.场景1 发生线上问题后,该怎么做"></a>一.场景1 发生线上问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><pre><code>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:
-</code></pre><p>1.先看日志报错,比如是out of memory 就基本可以定位问题在JVM而不是操作系统的问题,所以只需要保存一些必要的JVM现场即可.<br>2.但是如果是一些TCP连接耗尽(TIME_WAITING例如SYN,ddos攻击)、TCP链接没有及时释放(表现在服务不可用)、<br>网络丢包波动之类的网络异常、kafka消息不完整等问题,就需要保留操作系统<br>或者kafka组件的日志信息了,后续介绍这方面的方法  </p>
+<h2 id="一-场景1-发生线上问题后-该怎么做"><a href="#一-场景1-发生线上问题后-该怎么做" class="headerlink" title="一.场景1 发生线上问题后,该怎么做"></a>一.场景1 发生线上问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><p>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:  </p>
+<ul>
+<li>1.先看日志报错,比如是out of memory 就基本可以定位问题在JVM而不是操作系统的问题,所以只需要保存一些必要的JVM现场即可.  </li>
+<li>2.但是如果是一些TCP连接耗尽(TIME_WAITING例如SYN,ddos攻击)、TCP链接没有及时释放(表现在服务不可用)、<br>网络丢包波动之类的网络异常、kafka消息不完整等问题,就需要保留操作系统<br>或者kafka组件的日志信息了,后续介绍这方面的方法  </li>
+</ul>
 <h4 id="保留JVM的堆栈信息的方法"><a href="#保留JVM的堆栈信息的方法" class="headerlink" title="保留JVM的堆栈信息的方法"></a>保留JVM的堆栈信息的方法</h4><p>保留栈信息:  </p>
 <pre><code class="shell">jstack pid &gt; stack.log
 </code></pre>
@@ -181,24 +184,31 @@
 </code></pre>
 <p>一般来说都会用 top 去定位运行异常(比如CPU占用过高,内存占用过高)的PID  </p>
 <h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸"><a href="#常见问题1-服务器内存爆炸-CPU爆炸" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸"></a>常见问题1:服务器内存爆炸-CPU爆炸</h4><p>top指令发现我们的Java应用的CPU占用或者内存占用明显高出平时的情况!</p>
-<h4 id="常见问题2-GC频繁运行"><a href="#常见问题2-GC频繁运行" class="headerlink" title="常见问题2:GC频繁运行"></a>常见问题2:GC频繁运行</h4><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:<br>1.获取GC运行概况</p>
-<pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
+<h4 id="常见问题2-GC频繁运行"><a href="#常见问题2-GC频繁运行" class="headerlink" title="常见问题2:GC频繁运行"></a>常见问题2:GC频繁运行</h4><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:  </p>
+<ul>
+<li>获取GC运行概况<pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
 </code></pre>
-<p>解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:<br>一. Eden Old 即图中的E和O 占比过高!<br>二. 1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  </p>
-<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><a href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸-解决方案"></a>常见问题1:服务器内存爆炸-CPU爆炸-解决方案</h4><p>思路:<strong>看JVM中有哪些线程,它们都在干嘛!定位占用大量资源的线程</strong><br>步骤1.确定应用PID 这里不赘述了<br>步骤2.查看这个PID下的所有线程!感兴趣的看下这篇博文-&gt; <a href="https://blog.csdn.net/notsaltedfish/article/details/80209538" target="_blank" rel="noopener">一个CPU占用过高的案例</a></p>
-<pre><code class="shell">top -Hp pid # shift+p 按cpu排序，shift+m 按内存排序  
+解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:  </li>
+<li>Eden Old 即图中的E和O 占比过高!  </li>
+<li>1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  <h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><a href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸-解决方案"></a>常见问题1:服务器内存爆炸-CPU爆炸-解决方案</h4>思路:<strong>看JVM中有哪些线程,它们都在干嘛!定位占用大量资源的线程</strong><br>步骤1.确定应用PID 这里不赘述了<br>步骤2.查看这个PID下的所有线程!感兴趣的看下这篇博文-&gt; <a href="https://blog.csdn.net/notsaltedfish/article/details/80209538" target="_blank" rel="noopener">一个CPU占用过高的案例</a><pre><code class="shell">top -Hp pid # shift+p 按cpu排序，shift+m 按内存排序  
 </code></pre>
-<p>步骤3.如果是想排查内存问题就按内存排序,如果排查CPU占用异常就按CPU排序,最后定位到1个高占用的PID  </p>
-<blockquote>
+步骤3.如果是想排查内存问题就按内存排序,如果排查CPU占用异常就按CPU排序,最后定位到1个高占用的PID  <blockquote>
 <p> 这里的PID是线程ID,对应jstack打印出的线程的nid 但是linux打印的是十进制,jstack的nid是16进制的.  这里假设定位到的进程ID:2152,线程ID是23256,转为十六进制是5ad8</p>
 </blockquote>
+</li>
+</ul>
 <p>步骤4.马上看看这个线程在干嘛,注意这时候要快,因为可能这个线程会在打指令的过程中就结束掉了!  </p>
 <pre><code class="shell">jstack 2152| grep 5ad8 -A 30 #5ad8 是线程号,2152是进程号  
 </code></pre>
 <blockquote>
 <p>-A 30 是展示jstack栈匹配到5ad8这行开始往下展示30行文本 具体展示多少行看打印出来的栈信息调整,少了就加</p>
 </blockquote>
-<h4 id="常见问题2-GC频繁运行-解决方案"><a href="#常见问题2-GC频繁运行-解决方案" class="headerlink" title="常见问题2:GC频繁运行-解决方案"></a>常见问题2:GC频繁运行-解决方案</h4><p>引起fullGC的原因有很多,这里给大家介绍几个例子:<br>1.某集合中的对象不断累积却没有删除机制—<strong>容易出现在一些全局的集合对象中</strong><br>2.在没有评估数据量的情况下加载数据库大表的全表数据到集合 + 高并发场景 —<strong>例如日志模块,报表模块等</strong><br>3.JVM启动参数分配的内存和项目实际运行环境不符,导致堆内存过小从而导致FullGC频繁进行  </p>
+<h4 id="常见问题2-GC频繁运行-解决方案"><a href="#常见问题2-GC频繁运行-解决方案" class="headerlink" title="常见问题2:GC频繁运行-解决方案"></a>常见问题2:GC频繁运行-解决方案</h4><p>引起fullGC的原因有很多,这里给大家介绍几个例子:  </p>
+<ul>
+<li>某集合中的对象不断累积却没有删除机制—<strong>容易出现在一些全局的集合对象中</strong>  </li>
+<li>在没有评估数据量的情况下加载数据库大表的全表数据到集合 + 高并发场景 —<strong>例如日志模块,报表模块等</strong>  </li>
+<li>JVM启动参数分配的内存和项目实际运行环境不符,导致堆内存过小从而导致FullGC频繁进行  </li>
+</ul>
 
 
     
