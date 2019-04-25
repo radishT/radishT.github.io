@@ -22,7 +22,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/jvmnote1.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70">
-<meta property="og:updated_time" content="2019-04-25T07:46:56.000Z">
+<meta property="og:updated_time" content="2019-04-25T07:49:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java应用线上问题排查(1)">
 <meta name="twitter:description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,">
@@ -188,7 +188,7 @@
 <h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸"><a href="#常见问题1-服务器内存爆炸-CPU爆炸" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸"></a>常见问题1:服务器内存爆炸-CPU爆炸</h4><p>top指令发现我们的Java应用的CPU占用或者内存占用明显高出平时的情况!</p>
 <h4 id="常见问题2-GC频繁运行"><a href="#常见问题2-GC频繁运行" class="headerlink" title="常见问题2:GC频繁运行"></a>常见问题2:GC频繁运行</h4><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:  </p>
 <ul>
-<li>获取GC运行概况<pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
+<li>获取GC运行概况  <pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
 </code></pre>
 解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:  </li>
 <li>Eden Old 即图中的E和O 占比过高!  </li>

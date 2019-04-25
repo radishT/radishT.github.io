@@ -186,7 +186,7 @@
 <h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸"><a href="#常见问题1-服务器内存爆炸-CPU爆炸" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸"></a>常见问题1:服务器内存爆炸-CPU爆炸</h4><p>top指令发现我们的Java应用的CPU占用或者内存占用明显高出平时的情况!</p>
 <h4 id="常见问题2-GC频繁运行"><a href="#常见问题2-GC频繁运行" class="headerlink" title="常见问题2:GC频繁运行"></a>常见问题2:GC频繁运行</h4><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:  </p>
 <ul>
-<li>获取GC运行概况<pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
+<li>获取GC运行概况  <pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
 </code></pre>
 解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:  </li>
 <li>Eden Old 即图中的E和O 占比过高!  </li>
