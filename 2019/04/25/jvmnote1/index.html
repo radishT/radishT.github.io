@@ -12,20 +12,20 @@
   <link rel="shortcut icon" href="/">
   <link rel="alternate" href="/atom.xml" title="我的博客">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,">
+  <meta name="description" content="Java线上应用问题排查思路为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.发生问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,比如是out of">
 <meta name="keywords" content="blog,IT">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java应用线上问题排查(1)">
 <meta property="og:url" content="http://yoursite.com/2019/04/25/jvmnote1/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,">
+<meta property="og:description" content="Java线上应用问题排查思路为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.发生问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,比如是out of">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/images/jvmnote1.png">
 <meta property="og:image" content="http://yoursite.com/images/jvmnote2.png">
-<meta property="og:updated_time" content="2019-04-25T08:53:49.000Z">
+<meta property="og:updated_time" content="2019-04-25T09:02:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java应用线上问题排查(1)">
-<meta name="twitter:description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,">
+<meta name="twitter:description" content="Java线上应用问题排查思路为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.发生问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:    1.先看日志报错,比如是out of">
 <meta name="twitter:image" content="http://yoursite.com/images/jvmnote1.png">
     
   <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
@@ -155,11 +155,11 @@
 
 	</section>
 	
-		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java应用上线时常会遇到一些事故"><span class="toc-number">1.</span> <span class="toc-text">Java应用上线时常会遇到一些事故</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-场景1-发生线上问题后-该怎么做"><span class="toc-number">1.1.</span> <span class="toc-text">一.场景1 发生线上问题后,该怎么做</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#保留现场"><span class="toc-number">1.1.1.</span> <span class="toc-text">保留现场</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#保留JVM的堆栈信息的方法"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">保留JVM的堆栈信息的方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认问题"><span class="toc-number">1.1.2.</span> <span class="toc-text">确认问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题1-服务器内存爆炸-CPU爆炸"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">常见问题1:服务器内存爆炸-CPU爆炸</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题2-GC频繁运行"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">常见问题2:GC频繁运行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决问题"><span class="toc-number">1.1.3.</span> <span class="toc-text">解决问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">常见问题1:服务器内存爆炸-CPU爆炸-解决方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题2-GC频繁运行-解决方案"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">常见问题2:GC频繁运行-解决方案</span></a></li></ol></li></ol></li></ol></li></ol></section>
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java线上应用问题排查思路"><span class="toc-number">1.</span> <span class="toc-text">Java线上应用问题排查思路</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-发生问题后-该怎么做"><span class="toc-number">1.1.</span> <span class="toc-text">一.发生问题后,该怎么做</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#保留现场"><span class="toc-number">1.1.1.</span> <span class="toc-text">保留现场</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#保留JVM的堆栈信息的方法"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">保留JVM的堆栈信息的方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认问题"><span class="toc-number">1.1.2.</span> <span class="toc-text">确认问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题1-服务器内存爆炸-CPU爆炸"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">常见问题1:服务器内存爆炸-CPU爆炸</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题2-GC频繁运行"><span class="toc-number">1.1.2.2.</span> <span class="toc-text">常见问题2:GC频繁运行</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决问题"><span class="toc-number">1.1.3.</span> <span class="toc-text">解决问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">常见问题1:服务器内存爆炸-CPU爆炸-解决方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#常见问题2-GC频繁运行-解决方案"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">常见问题2:GC频繁运行-解决方案</span></a></li></ol></li></ol></li></ol></li></ol></section>
 	
 	<section class="article typo">
   	<div class="article-entry" itemprop="articleBody">
-    	<h1 id="Java应用上线时常会遇到一些事故"><a href="#Java应用上线时常会遇到一些事故" class="headerlink" title="Java应用上线时常会遇到一些事故"></a>Java应用上线时常会遇到一些事故</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
+    	<h1 id="Java线上应用问题排查思路"><a href="#Java线上应用问题排查思路" class="headerlink" title="Java线上应用问题排查思路"></a>Java线上应用问题排查思路</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
 <blockquote>
 <p>JDK:Java1.8</p>
 </blockquote>
@@ -170,7 +170,7 @@
 <p>Linux CentOS 6.5</p>
 </blockquote>
 <p>过程中参考过的一些他人的文章<a href="https://zhuanlan.zhihu.com/p/59279569?utm_source=qq&amp;utm_medium=social&amp;utm_oi=822385365787766784" target="_blank" rel="noopener">一次 Java 内存泄漏的排查</a></p>
-<h2 id="一-场景1-发生线上问题后-该怎么做"><a href="#一-场景1-发生线上问题后-该怎么做" class="headerlink" title="一.场景1 发生线上问题后,该怎么做"></a>一.场景1 发生线上问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><p>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:  </p>
+<h2 id="一-发生问题后-该怎么做"><a href="#一-发生问题后-该怎么做" class="headerlink" title="一.发生问题后,该怎么做"></a>一.发生问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><p>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:  </p>
 <ul>
 <li>1.先看日志报错,比如是out of memory 就基本可以定位问题在JVM而不是操作系统的问题,所以只需要保存一些必要的JVM现场即可.  </li>
 <li>2.但是如果是一些TCP连接耗尽(TIME_WAITING例如SYN,ddos攻击)、TCP链接没有及时释放(表现在服务不可用)、<br>网络丢包波动之类的网络异常、kafka消息不完整等问题,就需要保留操作系统<br>或者kafka组件的日志信息了,后续介绍这方面的方法  </li>

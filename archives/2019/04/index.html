@@ -162,7 +162,7 @@
 
   </section>
   <section class="article typo">
-	  <h1 id="Java应用上线时常会遇到一些事故"><a href="#Java应用上线时常会遇到一些事故" class="headerlink" title="Java应用上线时常会遇到一些事故"></a>Java应用上线时常会遇到一些事故</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
+	  <h1 id="Java线上应用问题排查思路"><a href="#Java线上应用问题排查思路" class="headerlink" title="Java线上应用问题排查思路"></a>Java线上应用问题排查思路</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
 <blockquote>
 <p>JDK:Java1.8</p>
 </blockquote>
@@ -173,7 +173,7 @@
 <p>Linux CentOS 6.5</p>
 </blockquote>
 <p>过程中参考过的一些他人的文章<a href="https://zhuanlan.zhihu.com/p/59279569?utm_source=qq&amp;utm_medium=social&amp;utm_oi=822385365787766784" target="_blank" rel="noopener">一次 Java 内存泄漏的排查</a></p>
-<h2 id="一-场景1-发生线上问题后-该怎么做"><a href="#一-场景1-发生线上问题后-该怎么做" class="headerlink" title="一.场景1 发生线上问题后,该怎么做"></a>一.场景1 发生线上问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><p>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:  </p>
+<h2 id="一-发生问题后-该怎么做"><a href="#一-发生问题后-该怎么做" class="headerlink" title="一.发生问题后,该怎么做"></a>一.发生问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><p>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:  </p>
 <ul>
 <li>1.先看日志报错,比如是out of memory 就基本可以定位问题在JVM而不是操作系统的问题,所以只需要保存一些必要的JVM现场即可.  </li>
 <li>2.但是如果是一些TCP连接耗尽(TIME_WAITING例如SYN,ddos攻击)、TCP链接没有及时释放(表现在服务不可用)、<br>网络丢包波动之类的网络异常、kafka消息不完整等问题,就需要保留操作系统<br>或者kafka组件的日志信息了,后续介绍这方面的方法  </li>
