@@ -180,19 +180,20 @@
 <p>查询PID的方式很多,如果确定服务所在的端口可以用:  </p>
 <pre><code class="shell">netstat   -anp   |   grep  portno  
 </code></pre>
-<h2 id="一般来说都会用-top-去定位运行异常-比如CPU占用过高-内存占用过高-的PID"><a href="#一般来说都会用-top-去定位运行异常-比如CPU占用过高-内存占用过高-的PID" class="headerlink" title="一般来说都会用 top 去定位运行异常(比如CPU占用过高,内存占用过高)的PID  "></a>一般来说都会用 top 去定位运行异常(比如CPU占用过高,内存占用过高)的PID  </h2><h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸"><a href="#常见问题1-服务器内存爆炸-CPU爆炸" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸"></a>常见问题1:服务器内存爆炸-CPU爆炸</h4><p>top指令发现我们的Java应用的CPU占用或者内存占用明显高出平时的情况!</p>
+<p>一般来说都会用 top 去定位运行异常(比如CPU占用过高,内存占用过高)的PID  </p>
+<h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸"><a href="#常见问题1-服务器内存爆炸-CPU爆炸" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸"></a>常见问题1:服务器内存爆炸-CPU爆炸</h4><p>top指令发现我们的Java应用的CPU占用或者内存占用明显高出平时的情况!</p>
 <h4 id="常见问题2-GC频繁运行"><a href="#常见问题2-GC频繁运行" class="headerlink" title="常见问题2:GC频繁运行"></a>常见问题2:GC频繁运行</h4><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:<br>1.获取GC运行概况</p>
 <pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
 </code></pre>
-<p>解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:<br>一. Eden Old 即图中的E和O 占比过高!  </p>
-<h2 id="二-1秒采样一次的频率-FGC的次数却在飙升-说明FGC在频繁进行"><a href="#二-1秒采样一次的频率-FGC的次数却在飙升-说明FGC在频繁进行" class="headerlink" title="二. 1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  "></a>二. 1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  </h2><h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><a href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸-解决方案"></a>常见问题1:服务器内存爆炸-CPU爆炸-解决方案</h4><p>思路:<strong>看JVM中有哪些线程,它们都在干嘛!定位占用大量资源的线程</strong><br>步骤1.确定应用PID 这里不赘述了<br>步骤2.查看这个PID下的所有线程!感兴趣的看下这篇博文-&gt; <a href="https://blog.csdn.net/notsaltedfish/article/details/80209538" target="_blank" rel="noopener">一个CPU占用过高的案例</a></p>
+<p>解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:<br>一. Eden Old 即图中的E和O 占比过高!<br>二. 1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  </p>
+<h3 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h3><h4 id="常见问题1-服务器内存爆炸-CPU爆炸-解决方案"><a href="#常见问题1-服务器内存爆炸-CPU爆炸-解决方案" class="headerlink" title="常见问题1:服务器内存爆炸-CPU爆炸-解决方案"></a>常见问题1:服务器内存爆炸-CPU爆炸-解决方案</h4><p>思路:<strong>看JVM中有哪些线程,它们都在干嘛!定位占用大量资源的线程</strong><br>步骤1.确定应用PID 这里不赘述了<br>步骤2.查看这个PID下的所有线程!感兴趣的看下这篇博文-&gt; <a href="https://blog.csdn.net/notsaltedfish/article/details/80209538" target="_blank" rel="noopener">一个CPU占用过高的案例</a></p>
 <pre><code class="shell">top -Hp pid # shift+p 按cpu排序，shift+m 按内存排序  
 </code></pre>
 <p>步骤3.如果是想排查内存问题就按内存排序,如果排查CPU占用异常就按CPU排序,最后定位到1个高占用的PID  </p>
 <blockquote>
 <p> 这里的PID是线程ID,对应jstack打印出的线程的nid 但是linux打印的是十进制,jstack的nid是16进制的.  这里假设定位到的进程ID:2152,线程ID是23256,转为十六进制是5ad8</p>
 </blockquote>
-<p>步骤4.马上看看这个线程在干嘛,注意这时候要快,因为可能这个线程会在打指令的过程中就结束掉了!</p>
+<p>步骤4.马上看看这个线程在干嘛,注意这时候要快,因为可能这个线程会在打指令的过程中就结束掉了!  </p>
 <pre><code class="shell">jstack 2152| grep 5ad8 -A 30 #5ad8 是线程号,2152是进程号  
 </code></pre>
 <blockquote>
