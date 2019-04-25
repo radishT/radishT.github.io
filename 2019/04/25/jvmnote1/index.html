@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>Archives: 2019/4 | 我的博客</title>
+  <title>Java应用线上问题排查(1) | 我的博客</title>
   <meta name="description" content="A blog of Radish">
   <meta name="keywords" content="blog,IT">
   <meta name="HandheldFriendly" content="True">
@@ -12,17 +12,21 @@
   <link rel="shortcut icon" href="/">
   <link rel="alternate" href="/atom.xml" title="我的博客">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="A blog of Radish">
+  <meta name="description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路: 1.先看日志报错,比如是">
 <meta name="keywords" content="blog,IT">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我的博客">
-<meta property="og:url" content="http://yoursite.com/archives/2019/04/index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java应用线上问题排查(1)">
+<meta property="og:url" content="http://yoursite.com/2019/04/25/jvmnote1/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="A blog of Radish">
+<meta property="og:description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路: 1.先看日志报错,比如是">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/jvmnote1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2019-04-25T06:23:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我的博客">
-<meta name="twitter:description" content="A blog of Radish">
+<meta name="twitter:title" content="Java应用线上问题排查(1)">
+<meta name="twitter:description" content="Java应用上线时常会遇到一些事故为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:  JDK:Java1.8   MySQL : 5.6   Linux CentOS 6.5  过程中参考过的一些他人的文章一次 Java 内存泄漏的排查 一.场景1 发生线上问题后,该怎么做保留现场这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路: 1.先看日志报错,比如是">
+<meta name="twitter:image" content="http://yoursite.com/images/jvmnote1.png">
     
   <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
@@ -133,36 +137,29 @@
   <div class="l_body">
     <div class='container clearfix'>
       <div class='l_main'>
-        
+        <article id="post-jvmnote1" class="post white-box article-type-post" itemscope itemprop="blogPost">
+	<section class="meta">
+	<h2 class="title">
+  	<a href="/2019/04/25/jvmnote1/">
+    	Java应用线上问题排查(1)
+    </a>
+  </h2>
+	<time>
+	  Apr 25, 2019
+	</time>
 	
-  <script>
-    window.subData= { title:'Year : 2019.4'}
-  </script>
-
-<section class="post-list">
-	
-    <div class="post-wrapper">
-      <article class="post reveal">
-  <section class="meta">
-    
-    <h2 class="title">
-      <a href="/2019/04/25/jvmnote1/">
-        Java应用线上问题排查(1)
-      </a>
-    </h2>
-    
-    <time>
-      Apr 25, 2019
-    </time>
-		
     
     <div class="cats">
         <a href="/categories/JAVA/">JAVA</a>, <a href="/categories/JAVA/线上问题排查/">线上问题排查</a>
     </div>
 
-  </section>
-  <section class="article typo">
-	  <h1 id="Java应用上线时常会遇到一些事故"><a href="#Java应用上线时常会遇到一些事故" class="headerlink" title="Java应用上线时常会遇到一些事故"></a>Java应用上线时常会遇到一些事故</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
+	</section>
+	
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java应用上线时常会遇到一些事故"><span class="toc-number">1.</span> <span class="toc-text">Java应用上线时常会遇到一些事故</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#一-场景1-发生线上问题后-该怎么做"><span class="toc-number">1.1.</span> <span class="toc-text">一.场景1 发生线上问题后,该怎么做</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#保留现场"><span class="toc-number">1.1.1.</span> <span class="toc-text">保留现场</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#保留JVM的堆栈信息的方法"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">保留JVM的堆栈信息的方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确认问题"><span class="toc-number">1.1.2.</span> <span class="toc-text">确认问题</span></a></li></ol></li></ol></li></ol></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<h1 id="Java应用上线时常会遇到一些事故"><a href="#Java应用上线时常会遇到一些事故" class="headerlink" title="Java应用上线时常会遇到一些事故"></a>Java应用上线时常会遇到一些事故</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
 <blockquote>
 <p>JDK:Java1.8</p>
 </blockquote>
@@ -183,17 +180,23 @@
 </code></pre>
 <p>解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br><img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt></p>
 
-
-    
-    
-    
-  </section>
+  	</div>
+	  
+		
+	
+	</section>
+	
+		<section id="comments">
+			<div id="disqus_thread"></div>
+		</section>
+	
 </article>
-    </div>
-  
-</section>
-
-
+<script>
+	window.subData = {
+		title: 'Java应用线上问题排查(1)',
+		tools: true
+	}
+</script>
 
       </div>
       <aside class='l_side'>
@@ -269,11 +272,13 @@
 <script>
   var disqus_shortname = 'radishhome';
   
+  var disqus_url = 'http://yoursite.com/2019/04/25/jvmnote1/';
+  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>

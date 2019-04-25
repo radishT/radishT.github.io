@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>我的博客</title>
+  <title>Category: JAVA | 我的博客</title>
   <meta name="description" content="A blog of Radish">
   <meta name="keywords" content="blog,IT">
   <meta name="HandheldFriendly" content="True">
@@ -14,13 +14,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="A blog of Radish">
 <meta name="keywords" content="blog,IT">
-<meta property="og:type" content="article">
+<meta property="og:type" content="website">
 <meta property="og:title" content="我的博客">
-<meta property="og:url" content="http://yoursite.com/2019/04/24/abc/index.html">
+<meta property="og:url" content="http://yoursite.com/categories/JAVA/index.html">
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="A blog of Radish">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-04-24T10:51:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="我的博客">
 <meta name="twitter:description" content="A blog of Radish">
@@ -134,50 +133,65 @@
   <div class="l_body">
     <div class='container clearfix'>
       <div class='l_main'>
-        <article id="post-abc" class="post white-box article-type-post" itemscope itemprop="blogPost">
-	<section class="meta">
-	<h2 class="title">
-  	<a href="/2019/04/24/abc/">
-    	
-    </a>
-  </h2>
-	<time>
-	  Apr 24, 2019
-	</time>
+        
+  <script>
+    window.subData= { title:'Category : JAVA'}
+  </script>
+
+<section class="post-list">
 	
-	</section>
-	
-		<section class="toc-wrapper"></section>
-	
-	<section class="article typo">
-  	<div class="article-entry" itemprop="articleBody">
-    	
-  	</div>
-	  
+    <div class="post-wrapper">
+      <article class="post reveal">
+  <section class="meta">
+    
+    <h2 class="title">
+      <a href="/2019/04/25/jvmnote1/">
+        Java应用线上问题排查(1)
+      </a>
+    </h2>
+    
+    <time>
+      Apr 25, 2019
+    </time>
 		
-	
-		<div class="art-item-footer">
-				
-				
-					<span class="art-item-right">next：<a href="/2019/04/24/a/" rel="next" title>
-						
-					</a><i class="icon icon-chevron-thin-right"></i></span>
-				
-		</div>
-	
-	</section>
-	
-		<section id="comments">
-			<div id="disqus_thread"></div>
-		</section>
-	
+    
+    <div class="cats">
+        <a href="/categories/JAVA/">JAVA</a>, <a href="/categories/JAVA/线上问题排查/">线上问题排查</a>
+    </div>
+
+  </section>
+  <section class="article typo">
+	  <h1 id="Java应用上线时常会遇到一些事故"><a href="#Java应用上线时常会遇到一些事故" class="headerlink" title="Java应用上线时常会遇到一些事故"></a>Java应用上线时常会遇到一些事故</h1><p>为了避免和读者的实际情况产生偏离,我先介绍我的整个生产环境:</p>
+<blockquote>
+<p>JDK:Java1.8</p>
+</blockquote>
+<blockquote>
+<p>MySQL : 5.6</p>
+</blockquote>
+<blockquote>
+<p>Linux CentOS 6.5</p>
+</blockquote>
+<p>过程中参考过的一些他人的文章<a href="https://zhuanlan.zhihu.com/p/59279569?utm_source=qq&amp;utm_medium=social&amp;utm_oi=822385365787766784" target="_blank" rel="noopener">一次 Java 内存泄漏的排查</a></p>
+<h2 id="一-场景1-发生线上问题后-该怎么做"><a href="#一-场景1-发生线上问题后-该怎么做" class="headerlink" title="一.场景1 发生线上问题后,该怎么做"></a>一.场景1 发生线上问题后,该怎么做</h2><h3 id="保留现场"><a href="#保留现场" class="headerlink" title="保留现场"></a>保留现场</h3><pre><code>这里的保留现场是一个宽泛的概念,我一般是根据问题来做这一步,以下是我的一些思路:
+</code></pre><p>1.先看日志报错,比如是out of memory 就基本可以定位问题在JVM而不是操作系统的问题,所以只需要保存一些必要的JVM现场即可.<br>2.但是如果是一些TCP连接耗尽(TIME_WAITING例如SYN,ddos攻击)、TCP链接没有及时释放(表现在服务不可用)、<br>网络丢包波动之类的网络异常、kafka消息不完整等问题,就需要保留操作系统<br>或者kafka组件的日志信息了,后续介绍这方面的方法  </p>
+<h4 id="保留JVM的堆栈信息的方法"><a href="#保留JVM的堆栈信息的方法" class="headerlink" title="保留JVM的堆栈信息的方法"></a>保留JVM的堆栈信息的方法</h4><p>保留栈信息:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">jstack pid &gt; stack.log</span><br><span class="line">```  </span><br><span class="line">保留堆信息:  </span><br><span class="line">```shell</span><br><span class="line">jmap -dump:format=b,file=heap.log pid</span><br></pre></td></tr></table></figure></p>
+<p>查询PID的方式很多,如果确定服务所在的端口可以用:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat   -anp   |   grep  portno</span><br></pre></td></tr></table></figure></p>
+<p>一般来说都会用 top 去定位运行异常(比如CPU占用过高,内存占用过高)的PID  </p>
+<h3 id="确认问题"><a href="#确认问题" class="headerlink" title="确认问题"></a>确认问题</h3><p>有时候我们并不能在刚才的保留现场阶段就确认到问题,比如简单的top或者<br>程序日志无法帮助我们确认问题在哪里,我们可以进一步分析我们保留的堆栈信息,这里<br>例举几个通过日志可以看到的问题:<br>1.获取GC运行概况</p>
+<pre><code class="shell">jstat -gcutil pid
+</code></pre>
+<p>解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br><img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt></p>
+
+
+    
+    
+    
+  </section>
 </article>
-<script>
-	window.subData = {
-		title: '',
-		tools: true
-	}
-</script>
+    </div>
+  
+</section>
+
 
       </div>
       <aside class='l_side'>
@@ -195,6 +209,14 @@
   <section class="m_widget categories">
 <div class="header">Categories</div>
 <div class="content">
+    
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/JAVA/"><div class="name">JAVA</div><div class="badget">1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/JAVA/线上问题排查/"><div class="name">线上问题排查</div><div class="badget">1</div></a></li>
+    
+    </ul>
     
 </div>
 </section>
@@ -245,13 +267,11 @@
 <script>
   var disqus_shortname = 'radishhome';
   
-  var disqus_url = 'http://yoursite.com/2019/04/24/abc/';
-  
   (function(){
     var dsq = document.createElement('script');
     dsq.type = 'text/javascript';
     dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
   })();
 </script>
