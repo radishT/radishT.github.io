@@ -193,7 +193,7 @@
 <ul>
 <li>获取GC运行概况  <pre><code class="shell">jstat -gcutil pid 1000 #这里的pid是进程号,1000代表1秒采样一次  
 </code></pre>
-解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br>—-<img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:  </li>
+解析输出的内容(举例1 堆内存爆炸导致FullGC频繁STW <a href="https://blog.csdn.net/weiquanaishiyao/article/details/83578999" target="_blank" rel="noopener">参考博客</a>):<br><img src="/images/jvmnote1.png" alt><br><img src="https://img-blog.csdnimg.cn/20181031094752146.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXF1YW5haXNoaXlhbw==,size_16,color_FFFFFF,t_70" alt><br>对各参数有疑问的朋友可以跳转:<a href="https://www.javatang.com/archives/2017/10/20/12131956.html/comment-page-1" target="_blank" rel="noopener">jstat命令的使用</a><br>问题有两点:  </li>
 <li>Eden Old 即图中的E和O 占比过高!  </li>
 <li>1秒采样一次的频率,FGC的次数却在飙升,说明FGC在频繁进行!  </li>
 </ul>
